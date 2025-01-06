@@ -12,7 +12,7 @@
   writeShellScript,
 }:
 let
-  version = "0.20.0";
+  version = "0.21.0";
 
   pnpm = callPackage ../../../development/tools/pnpm/generic.nix {
     version = "9.0.0-alpha.8";
@@ -64,7 +64,7 @@ in
       owner = "hoarder-app";
       repo = "hoarder";
       rev = "v${finalAttrs.version}";
-      sha256 = "sha256-P5tXuUsv2gO2AzQTEogHk7CbPK7ibGv8BnCz0ypXMlo=";
+      sha256 = "sha256-3xgpiqq+BV0a/OlcQiGDt59fYNF+zP0+HPeBCRiZj48=";
     };
 
     patches = [
@@ -84,7 +84,7 @@ in
     ];
     pnpmDeps = pnpm.fetchDeps {
       inherit (finalAttrs) pname version src;
-      hash = "sha256-upmdt4j0PYluqPbXQilt2LCFyCJJK0RmBrQEzhf7ZUU=";
+      hash = "sha256-F6iW0rjcD2RUfWptMLpDw1Gfa2mbbzxqY2Ey1lYZTU4=";
     };
     buildPhase = ''
       runHook preBuild
