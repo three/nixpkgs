@@ -53,6 +53,8 @@ let
     exit 1
   '';
   script_hoarder_cli = writeShellScript "hoarder-script-cli" ''
+    set -eu -o pipefail
+    PATH="$PATH:$CURRENT_DIR/../node_modules/.bin"
     exec "$(dirname "$(realpath "$0")")/../cli/dist/index.mjs"
   '';
 in
@@ -115,27 +117,33 @@ in
       mkdir -p $out/share/doc/hoarder
       cp README.md LICENSE $out/share/doc/hoarder
 
-      mkdir -p $out/lib/hoarder
-      cp -r node_modules $out/lib/hoarder/
+      # Copy necessary files into lib/hoarder while keeping the directory structure
+      set -x
+      echo $SHELL
+      LIB_TO_COPY="node_modules apps/web/.next/standalone apps/cli apps/workers packages/db"
+      HOARDER_LIB_PATH="$out/lib/hoarder"
+      for DIR in $LIB_TO_COPY; do
+        mkdir -p "$HOARDER_LIB_PATH/$DIR"
+        cp -Lr $DIR/{.,}* "$HOARDER_LIB_PATH/$DIR"
+        chmod -R u+w "$HOARDER_LIB_PATH/$DIR"
+      done
 
-      mkdir -p $out/lib/hoarder/web
-      cp -r ./apps/web/.next/standalone/{.,}* $out/lib/hoarder/web
-      chmod -R u+w $out/lib/hoarder/web
-      cp -r ./apps/web/public $out/lib/hoarder/web/apps/web/
-      cp -r ./apps/web/.next/static $out/lib/hoarder/web/apps/web/.next/
+      # NextJS requires static files are copied in a specific way
+      # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output#automatically-copying-traced-files
+      cp -r ./apps/web/public "$HOARDER_LIB_PATH/apps/web/.next/standalone/public"
+      cp -r ./apps/web/.next/static "$HOARDER_LIB_PATH/apps/web/.next/standalone/static"
 
-      mkdir -p $out/lib/hoarder/db
-      cp -Lr ./packages/db/* $out/lib/hoarder/db
-
-      mkdir -p $out/lib/hoarder/cli
-      cp -Lr ./apps/cli/* $out/lib/hoarder/cli
-
-      mkdir -p $out/lib/hoarder/workers
-      cp -Lr ./apps/workers/* $out/lib/hoarder/workers
-
-      mkdir -p $out/lib/hoarder/bin
-      cp ${script_start} $out/lib/hoarder/bin/start
-      cp ${script_hoarder_cli} $out/lib/hoarder/bin/hoarder-cli
+      # Copy and modify helper scripts
+      for HELPER_SCRIPT in ${./helpers}/*; do
+        HELPER_SCRIPT_NAME="$(basename "$HELPER_SCRIPT")"
+        gawk -v "lib_path=$HOARDER_LIB_PATH" -v "release=${version}" '
+          /^HOARDER_LIB_PATH=/ { print "HOARDER_LIB_PATH=\"" lib_path "\""; next }
+          /^RELEASE=/ { print "RELEASE=\"" release "\""; next }
+          { print }
+        ' "$HELPER_SCRIPT" >"$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME"
+        chmod +x "$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME"
+        patchShebangs "$HOARDER_LIB_PATH/$(basename "$HELPER_SCRIPT")"
+      done
 
       runHook postInstall
     '';
@@ -143,11 +151,11 @@ in
     fixupPhase = ''
       runHook preFixup
 
-      sed -i '1s|^|#!${nodejs}/bin/node\n|' $out/lib/hoarder/web/apps/web/server.js
-      chmod +x $out/lib/hoarder/web/apps/web/server.js
+      # sed -i '1s|^|#!${nodejs}/bin/node\n|' $out/lib/hoarder/web/apps/web/server.js
+      # chmod +x $out/lib/hoarder/web/apps/web/server.js
 
-      sed -i "1c #!${nodejs}/bin/node" $out/lib/hoarder/cli/dist/index.mjs
-      chmod +x $out/lib/hoarder/cli/dist/index.mjs
+      # sed -i "1c #!${nodejs}/bin/node" $out/lib/hoarder/cli/dist/index.mjs
+      # chmod +x $out/lib/hoarder/cli/dist/index.mjs
 
       runHook postFixup
     '';

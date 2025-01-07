@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+HOARDER_LIB_PATH=
+exec "$HOARDER_LIB_PATH/node_modules/.bin/tsx" "$HOARDER_LIB_PATH/apps/cli/src/index.ts" "$@"
