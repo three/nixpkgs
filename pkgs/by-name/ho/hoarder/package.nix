@@ -18,45 +18,6 @@ let
     version = "9.0.0-alpha.8";
     hash = "sha256-pDOllWmwA4mpUTUpVvryXR/fQ7VoIT+95ZHDYnTUvDA";
   };
-
-  script_start = writeShellScript "hoarder-script-start" ''
-    set -eu -o pipefail
-    PATH="${coreutils}/bin"
-
-    if [[ "$#" -ne 1 || "x$1" = "x--help" ]]; then
-      echo "Usage: $0 <web | workers>" >&2
-      exit 1
-    fi
-
-    CURRENT_DIR="$(dirname "$(realpath "$0")")"
-    PATH="$PATH:$CURRENT_DIR/../node_modules/.bin"
-
-    export NODE_ENV=production
-    export RELEASE=${version}
-    [[ -d "$DATA_DIR" ]]          # Require DATA_DIR to be defined and exist
-    [[ -n "$NEXTAUTH_SECRET" ]]   # The NEXTAUTH_SECRET variable must be defined
-
-    if [[ ! -f "$DATA_DIR/db.db" ]]; then
-      echo "Migrating $DATA_DIR before starting"
-      tsx "$CURRENT_DIR/../db/migrate.ts"
-    fi
-
-    if [[ "x$1" = "xweb" ]]; then
-      exec "$CURRENT_DIR/../web/apps/web/server.js"
-    fi
-    if [[ "x$1" = "xworkers" ]]; then
-      export NODE_PATH="$CURRENT_DIR/../workers"
-      exec tsx "$CURRENT_DIR/../workers/index.ts"
-    fi
-
-    echo "Must specify web or workers" >&2
-    exit 1
-  '';
-  script_hoarder_cli = writeShellScript "hoarder-script-cli" ''
-    set -eu -o pipefail
-    PATH="$PATH:$CURRENT_DIR/../node_modules/.bin"
-    exec "$(dirname "$(realpath "$0")")/../cli/dist/index.mjs"
-  '';
 in
   stdenv.mkDerivation (finalAttrs: {
     pname = "hoarder";
