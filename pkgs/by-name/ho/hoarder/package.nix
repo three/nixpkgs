@@ -119,7 +119,7 @@ in
 
       # Copy necessary files into lib/hoarder while keeping the directory structure
       set -x
-      LIB_TO_COPY="node_modules apps/web/.next/standalone apps/cli/dist apps/workers packages/db packages/shared"
+      LIB_TO_COPY="node_modules apps/web/.next/standalone apps/cli/dist apps/workers packages/db packages/shared packages/trpc"
       HOARDER_LIB_PATH="$out/lib/hoarder"
       for DIR in $LIB_TO_COPY; do
         mkdir -p "$HOARDER_LIB_PATH/$DIR"
