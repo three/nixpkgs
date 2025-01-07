@@ -96,16 +96,16 @@ in
       popd
 
       export CI=true
-      PATH="$PATH:$PWD/node_modules/.bin"
+      # PATH="$PATH:$PWD/node_modules/.bin"
 
       echo "Compiling apps/web..."
       pushd apps/web
-      next build --experimental-build-mode compile
+      pnpm run build
       popd
 
       echo "Building apps/cli"
       pushd apps/cli
-      vite build
+      pnpm run build
       popd
 
       runHook postBuild
@@ -119,12 +119,11 @@ in
 
       # Copy necessary files into lib/hoarder while keeping the directory structure
       set -x
-      echo $SHELL
-      LIB_TO_COPY="node_modules apps/web/.next/standalone apps/cli apps/workers packages/db"
+      LIB_TO_COPY="node_modules apps/web/.next/standalone apps/cli/dist apps/workers packages/db packages/shared"
       HOARDER_LIB_PATH="$out/lib/hoarder"
       for DIR in $LIB_TO_COPY; do
         mkdir -p "$HOARDER_LIB_PATH/$DIR"
-        cp -Lr $DIR/{.,}* "$HOARDER_LIB_PATH/$DIR"
+        cp -a $DIR/{.,}* "$HOARDER_LIB_PATH/$DIR"
         chmod -R u+w "$HOARDER_LIB_PATH/$DIR"
       done
 
@@ -133,16 +132,21 @@ in
       cp -r ./apps/web/public "$HOARDER_LIB_PATH/apps/web/.next/standalone/public"
       cp -r ./apps/web/.next/static "$HOARDER_LIB_PATH/apps/web/.next/standalone/static"
 
-      # Copy and modify helper scripts
+      # Copy and patch helper scripts
       for HELPER_SCRIPT in ${./helpers}/*; do
         HELPER_SCRIPT_NAME="$(basename "$HELPER_SCRIPT")"
-        gawk -v "lib_path=$HOARDER_LIB_PATH" -v "release=${version}" '
-          /^HOARDER_LIB_PATH=/ { print "HOARDER_LIB_PATH=\"" lib_path "\""; next }
-          /^RELEASE=/ { print "RELEASE=\"" release "\""; next }
-          { print }
-        ' "$HELPER_SCRIPT" >"$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME"
+        # gawk -v "lib_path=$HOARDER_LIB_PATH" -v "release=${version}" '
+        #   /^HOARDER_LIB_PATH=/ { print "HOARDER_LIB_PATH=\"" lib_path "\""; next }
+        #   /^RELEASE=/ { print "RELEASE=\"" release "\""; next }
+        #   { print }
+        # ' "$HELPER_SCRIPT" >"$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME"
+        cp "$HELPER_SCRIPT" "$HOARDER_LIB_PATH/"
+        substituteInPlace "$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME" \
+          --replace "HOARDER_LIB_PATH=" "HOARDER_LIB_PATH=$HOARDER_LIB_PATH" \
+          --replace "RELEASE=" "RELEASE=${version}" \
+          --replace "NODEJS=" "NODEJS=${nodejs}"
         chmod +x "$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME"
-        patchShebangs "$HOARDER_LIB_PATH/$(basename "$HELPER_SCRIPT")"
+        patchShebangs "$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME"
       done
 
       runHook postInstall
