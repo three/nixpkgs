@@ -10,6 +10,8 @@
   bash,
   coreutils,
   writeShellScript,
+  srcOnly,
+  removeReferencesTo,
 }:
 let
   version = "0.21.0";
@@ -52,12 +54,13 @@ in
     buildPhase = ''
       runHook preBuild
 
+      # Based on matrix-appservice-discord
       pushd node_modules/better-sqlite3
-      node-gyp rebuild --release
+      npm run build-release --offline "--nodedir=${srcOnly nodejs}"
+      find build -type f -exec ${removeReferencesTo}/bin/remove-references-to -t "${srcOnly nodejs}" {} \;
       popd
 
       export CI=true
-      # PATH="$PATH:$PWD/node_modules/.bin"
 
       echo "Compiling apps/web..."
       pushd apps/web
@@ -79,7 +82,6 @@ in
       cp README.md LICENSE $out/share/doc/hoarder
 
       # Copy necessary files into lib/hoarder while keeping the directory structure
-      set -x
       LIB_TO_COPY="node_modules apps/web/.next/standalone apps/cli/dist apps/workers packages/db packages/shared packages/trpc"
       HOARDER_LIB_PATH="$out/lib/hoarder"
       for DIR in $LIB_TO_COPY; do
@@ -96,11 +98,6 @@ in
       # Copy and patch helper scripts
       for HELPER_SCRIPT in ${./helpers}/*; do
         HELPER_SCRIPT_NAME="$(basename "$HELPER_SCRIPT")"
-        # gawk -v "lib_path=$HOARDER_LIB_PATH" -v "release=${version}" '
-        #   /^HOARDER_LIB_PATH=/ { print "HOARDER_LIB_PATH=\"" lib_path "\""; next }
-        #   /^RELEASE=/ { print "RELEASE=\"" release "\""; next }
-        #   { print }
-        # ' "$HELPER_SCRIPT" >"$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME"
         cp "$HELPER_SCRIPT" "$HOARDER_LIB_PATH/"
         substituteInPlace "$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME" \
           --replace "HOARDER_LIB_PATH=" "HOARDER_LIB_PATH=$HOARDER_LIB_PATH" \
@@ -116,20 +113,17 @@ in
     fixupPhase = ''
       runHook preFixup
 
-      # sed -i '1s|^|#!${nodejs}/bin/node\n|' $out/lib/hoarder/web/apps/web/server.js
-      # chmod +x $out/lib/hoarder/web/apps/web/server.js
-
-      # sed -i "1c #!${nodejs}/bin/node" $out/lib/hoarder/cli/dist/index.mjs
-      # chmod +x $out/lib/hoarder/cli/dist/index.mjs
+      # Remove broken symlinks
+      find $out -type l ! -exec test -e {} \; -delete
 
       runHook postFixup
     '';
 
-  meta = {
-    homepage = "https://github.com/hoarder-app/hoarder";
-    description = "A self-hostable bookmark-everything app with a touch of AI for the data hoarders out there";
-    license = lib.licenses.agpl3Only;
-    maintainers = [];
-    platforms = lib.platforms.linux;
-  };
-})
+    meta = {
+      homepage = "https://github.com/hoarder-app/hoarder";
+      description = "A self-hostable bookmark-everything app with a touch of AI for the data hoarders out there";
+      license = lib.licenses.agpl3Only;
+      maintainers = [];
+      platforms = lib.platforms.linux;
+    };
+  })
