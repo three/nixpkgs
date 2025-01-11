@@ -92,8 +92,8 @@ in
 
       # NextJS requires static files are copied in a specific way
       # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output#automatically-copying-traced-files
-      cp -r ./apps/web/public "$HOARDER_LIB_PATH/apps/web/.next/standalone/public"
-      cp -r ./apps/web/.next/static "$HOARDER_LIB_PATH/apps/web/.next/standalone/static"
+      cp -r ./apps/web/public "$HOARDER_LIB_PATH/apps/web/.next/standalone/apps/web/"
+      cp -r ./apps/web/.next/static "$HOARDER_LIB_PATH/apps/web/.next/standalone/apps/web/.next/"
 
       # Copy and patch helper scripts
       for HELPER_SCRIPT in ${./helpers}/*; do
