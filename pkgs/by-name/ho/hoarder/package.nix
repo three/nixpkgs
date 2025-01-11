@@ -107,11 +107,18 @@ in
         patchShebangs "$HOARDER_LIB_PATH/$HELPER_SCRIPT_NAME"
       done
 
+      # The cli should be in bin/
+      mkdir -p $out/bin
+      mv "$HOARDER_LIB_PATH/hoarder-cli" $out/bin/
+
       runHook postInstall
     '';
 
     fixupPhase = ''
       runHook preFixup
+
+      # Remove large dependencies that are not necessary during runtime
+      rm -rf $out/lib/hoarder/node_modules/{@next,next,@swc,react-native,monaco-editor,faker,@typescript-eslint,@microsoft,@typescript-eslint,pdfjs-dist}
 
       # Remove broken symlinks
       find $out -type l ! -exec test -e {} \; -delete
