@@ -130,7 +130,7 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://github.com/hoarder-app/hoarder";
     description = "A self-hostable bookmark-everything app with a touch of AI for the data hoarders out there";
     license = lib.licenses.agpl3Only;
-    maintainers = [ ];
+    maintainers = [ lib.maintainers.three ];
     platforms = lib.platforms.linux;
   };
 })
