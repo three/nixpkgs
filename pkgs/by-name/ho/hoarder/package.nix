@@ -1,6 +1,7 @@
 {
   lib,
   stdenv,
+  stdenvNoCC,
   fetchFromGitHub,
   nodejs,
   node-gyp,
@@ -44,7 +45,7 @@ stdenv.mkDerivation (finalAttrs: {
     inherit (finalAttrs) pname version;
 
     # We need to pass the patched source code, so pnpm sees the patched version
-    src = stdenv.mkDerivation {
+    src = stdenvNoCC.mkDerivation {
       name = "${finalAttrs.pname}-patched-source";
       inherit (finalAttrs) src patches;
       installPhase = ''
@@ -76,6 +77,17 @@ stdenv.mkDerivation (finalAttrs: {
     popd
 
     runHook postBuild
+  '';
+
+  preInstall = ''
+    # remove dep dependencies
+    pnpm --ignore-scripts --prod prune
+
+    # Remove large dependencies that are not necessary during runtime
+    rm -rf node_modules/{@next,next,@swc,react-native,monaco-editor,faker,@typescript-eslint,@microsoft,@typescript-eslint,pdfjs-dist,@hoarder/prettier-config}
+
+    # Remove broken symlinks
+    find . -type l ! -exec test -e {} \; -delete
   '';
 
   installPhase = ''
@@ -115,14 +127,6 @@ stdenv.mkDerivation (finalAttrs: {
     mv "$HOARDER_LIB_PATH/hoarder-cli" $out/bin/
 
     runHook postInstall
-  '';
-
-  postFixup = ''
-    # Remove large dependencies that are not necessary during runtime
-    rm -rf $out/lib/hoarder/node_modules/{@next,next,@swc,react-native,monaco-editor,faker,@typescript-eslint,@microsoft,@typescript-eslint,pdfjs-dist}
-
-    # Remove broken symlinks
-    find $out -type l ! -exec test -e {} \; -delete
   '';
 
   meta = {
