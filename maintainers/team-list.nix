@@ -593,10 +593,7 @@ with lib.maintainers;
   };
 
   infisical = {
-    members = [
-      akhilmhdh
-      mahyarmirrashed
-    ];
+    members = [ akhilmhdh ];
     scope = "Maintain Infisical";
     shortName = "Infisical";
   };
@@ -1147,7 +1144,6 @@ with lib.maintainers;
   sage = {
     members = [
       timokau
-      omasanori
       raskin
       collares
     ];
@@ -1233,6 +1229,7 @@ with lib.maintainers;
       arianvp
       elvishjerricco
       aanderse
+      grimmauld
     ];
     githubTeams = [ "systemd" ];
     scope = "Maintain systemd for NixOS.";
@@ -1251,6 +1248,17 @@ with lib.maintainers;
     members = [ mic92 ];
     scope = "coqui-ai TTS (formerly Mozilla TTS) and leaf packages";
     shortName = "coqui-ai TTS";
+  };
+
+  windows = {
+    members = [
+      RossSmyth
+      eveeifyeve
+      ericson2314
+      puffnfresh
+    ];
+    scope = "Maintains the windows package set";
+    shortName = "Windows";
   };
 
   wdz = {

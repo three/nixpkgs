@@ -17,11 +17,11 @@
 
 stdenv.mkDerivation rec {
   pname = "hashcat";
-  version = "6.2.6";
+  version = "7.0.0";
 
   src = fetchurl {
     url = "https://hashcat.net/files/hashcat-${version}.tar.gz";
-    sha256 = "sha256-sl4Qd7zzSQjMjxjBppouyYsEeyy88PURRNzzuh4Leyo=";
+    sha256 = "sha256-hCtx0NNLAgAFiCR6rp/smg/BMnfyzTpqSSWw8Jszv3U=";
   };
 
   postPatch = ''
@@ -34,37 +34,37 @@ stdenv.mkDerivation rec {
       --replace '-i ""' '-i'
   '';
 
-  nativeBuildInputs =
-    [
-      makeWrapper
-    ]
-    ++ lib.optionals cudaSupport [
-      addDriverRunpath
-    ];
+  nativeBuildInputs = [
+    makeWrapper
+  ]
+  ++ lib.optionals cudaSupport [
+    addDriverRunpath
+  ];
 
-  buildInputs =
-    [
-      minizip
-      opencl-headers
-      xxHash
-      zlib
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      libiconv
-    ];
+  buildInputs = [
+    minizip
+    opencl-headers
+    xxHash
+    zlib
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    libiconv
+  ];
 
-  makeFlags =
-    [
-      "PREFIX=${placeholder "out"}"
-      "COMPTIME=1337"
-      "VERSION_TAG=${version}"
-      "USE_SYSTEM_OPENCL=1"
-      "USE_SYSTEM_XXHASH=1"
-      "USE_SYSTEM_ZLIB=1"
-    ]
-    ++ lib.optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform == stdenv.buildPlatform) [
-      "IS_APPLE_SILICON='${if stdenv.hostPlatform.isAarch64 then "1" else "0"}'"
-    ];
+  makeFlags = [
+    "PREFIX=${placeholder "out"}"
+    "COMPTIME=1337"
+    "VERSION_TAG=${version}"
+    "USE_SYSTEM_OPENCL=1"
+    "USE_SYSTEM_XXHASH=1"
+    "USE_SYSTEM_ZLIB=1"
+  ]
+  ++ lib.optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform == stdenv.buildPlatform) [
+    "IS_APPLE_SILICON='${if stdenv.hostPlatform.isAarch64 then "1" else "0"}'"
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isAarch64 [
+    "IS_AARCH64=1"
+  ];
 
   enableParallelBuilding = true;
 
