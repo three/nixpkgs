@@ -1103,12 +1103,12 @@ final: prev: {
 
   augment-vim = buildVimPlugin {
     pname = "augment.vim";
-    version = "2025-03-18";
+    version = "2025-07-30";
     src = fetchFromGitHub {
       owner = "augmentcode";
       repo = "augment.vim";
-      rev = "97418c9dfc1918fa9bdd23863ea3d2e49130727f";
-      sha256 = "1sq4lpwzd2xc97l4h7zyglhg0jwg3xfw9qfidi26rz28dd1v2ivs";
+      rev = "b35cda0dab3b729e2eee3d792dcdb0ca7bb2482e";
+      sha256 = "05lwi6wp77dgaa9fn719piab3k8s5x7djfbzmbvmypp8zk8az6wx";
     };
     meta.homepage = "https://github.com/augmentcode/augment.vim/";
     meta.hydraPlatforms = [ ];
@@ -3947,6 +3947,19 @@ final: prev: {
       sha256 = "0kyxfkb6mkxy3skip6lzgrczwxl5p749n3rrvdr6psvyj3732zmm";
     };
     meta.homepage = "https://github.com/Raimondi/delimitMate/";
+    meta.hydraPlatforms = [ ];
+  };
+
+  demicolon-nvim = buildVimPlugin {
+    pname = "demicolon.nvim";
+    version = "2025-04-25";
+    src = fetchFromGitHub {
+      owner = "mawkler";
+      repo = "demicolon.nvim";
+      rev = "8d79e527dbbef9de06405a30258b8d752c0638c4";
+      sha256 = "1mcn8pidpnh0fhyigzc4y4a349lgarry082y2nx39qzm2pvw0g2i";
+    };
+    meta.homepage = "https://github.com/mawkler/demicolon.nvim/";
     meta.hydraPlatforms = [ ];
   };
 
@@ -13784,19 +13797,6 @@ final: prev: {
     meta.hydraPlatforms = [ ];
   };
 
-  sparkup = buildVimPlugin {
-    pname = "sparkup";
-    version = "2012-06-11";
-    src = fetchFromGitHub {
-      owner = "chrisgeo";
-      repo = "sparkup";
-      rev = "6fbfceef890e705c47b42b27be743ffed6f9296e";
-      sha256 = "17jgpvl879ik53rr3razfnbpfx63mzpp1rlvxxjsvvrk4g45dssm";
-    };
-    meta.homepage = "https://github.com/chrisgeo/sparkup/";
-    meta.hydraPlatforms = [ ];
-  };
-
   specs-nvim = buildVimPlugin {
     pname = "specs.nvim";
     version = "2025-01-18";
@@ -15100,6 +15100,19 @@ final: prev: {
       sha256 = "1nps9l2bagnxb5948rc6ggvc48097kza5ijl33vz0msdriqnkznf";
     };
     meta.homepage = "https://github.com/rachartier/tiny-devicons-auto-colors.nvim/";
+    meta.hydraPlatforms = [ ];
+  };
+
+  tiny-glimmer-nvim = buildVimPlugin {
+    pname = "tiny-glimmer.nvim";
+    version = "2025-07-01";
+    src = fetchFromGitHub {
+      owner = "rachartier";
+      repo = "tiny-glimmer.nvim";
+      rev = "60a632536e0741c9cecb892f89fbe65a270dc7c7";
+      sha256 = "0xa3ma6ps1q5766ib2iksc7bw8rpqn96llynb75njwj2kpadfcis";
+    };
+    meta.homepage = "https://github.com/rachartier/tiny-glimmer.nvim/";
     meta.hydraPlatforms = [ ];
   };
 

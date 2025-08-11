@@ -2759,6 +2759,8 @@ self: super: with self; {
 
   colcon-defaults = callPackage ../development/python-modules/colcon-defaults { };
 
+  colcon-library-path = callPackage ../development/python-modules/colcon-library-path { };
+
   colcon-mixin = callPackage ../development/python-modules/colcon-mixin { };
 
   colcon-notification = callPackage ../development/python-modules/colcon-notification { };
@@ -5053,8 +5055,6 @@ self: super: with self; {
 
   feedparser = callPackage ../development/python-modules/feedparser { };
 
-  fenics = callPackage ../development/python-modules/fenics { hdf5 = pkgs.hdf5_1_10; };
-
   fenics-basix = callPackage ../development/python-modules/fenics-basix { };
 
   fenics-dolfinx = callPackage ../development/python-modules/fenics-dolfinx { };
@@ -6584,6 +6584,8 @@ self: super: with self; {
 
   hkavr = callPackage ../development/python-modules/hkavr { };
 
+  hko = callPackage ../development/python-modules/hko { };
+
   hledger-utils = callPackage ../development/python-modules/hledger-utils { };
 
   hlk-sw16 = callPackage ../development/python-modules/hlk-sw16 { };
@@ -7631,6 +7633,8 @@ self: super: with self; {
 
   kaitaistruct = callPackage ../development/python-modules/kaitaistruct { };
 
+  kaiterra-async-client = callPackage ../development/python-modules/kaiterra-async-client { };
+
   kajiki = callPackage ../development/python-modules/kajiki { };
 
   kaldi-active-grammar = callPackage ../development/python-modules/kaldi-active-grammar { };
@@ -7889,6 +7893,8 @@ self: super: with self; {
   langgraph-cli = callPackage ../development/python-modules/langgraph-cli { };
 
   langgraph-prebuilt = callPackage ../development/python-modules/langgraph-prebuilt { };
+
+  langgraph-runtime-inmem = callPackage ../development/python-modules/langgraph-runtime-inmem { };
 
   langgraph-sdk = callPackage ../development/python-modules/langgraph-sdk { };
 
@@ -8662,6 +8668,8 @@ self: super: with self; {
   logzero = callPackage ../development/python-modules/logzero { };
 
   lomond = callPackage ../development/python-modules/lomond { };
+
+  london-tube-status = callPackage ../development/python-modules/london-tube-status { };
 
   loompy = callPackage ../development/python-modules/loompy { };
 
@@ -9446,6 +9454,8 @@ self: super: with self; {
   monai = callPackage ../development/python-modules/monai { };
 
   monai-deploy = callPackage ../development/python-modules/monai-deploy { };
+
+  monarchmoney = callPackage ../development/python-modules/monarchmoney { };
 
   monero = callPackage ../development/python-modules/monero { };
 
@@ -10566,6 +10576,8 @@ self: super: with self; {
   oasatelematics = callPackage ../development/python-modules/oasatelematics { };
 
   oath = callPackage ../development/python-modules/oath { };
+
+  oathtool = callPackage ../development/python-modules/oathtool { };
 
   oauth2-client = callPackage ../development/python-modules/oauth2-client { };
 
@@ -12267,8 +12279,6 @@ self: super: with self; {
   py-rust-stemmers = callPackage ../development/python-modules/py-rust-stemmers { };
 
   py-schluter = callPackage ../development/python-modules/py-schluter { };
-
-  py-scrypt = callPackage ../development/python-modules/py-scrypt { };
 
   py-serializable = callPackage ../development/python-modules/py-serializable { };
 
@@ -16268,6 +16278,8 @@ self: super: with self; {
 
   sentence-splitter = callPackage ../development/python-modules/sentence-splitter { };
 
+  sentence-stream = callPackage ../development/python-modules/sentence-stream { };
+
   sentence-transformers = callPackage ../development/python-modules/sentence-transformers { };
 
   sentencepiece = callPackage ../development/python-modules/sentencepiece {
@@ -16860,6 +16872,8 @@ self: super: with self; {
   spdx-lookup = callPackage ../development/python-modules/spdx-lookup { };
 
   spdx-tools = callPackage ../development/python-modules/spdx-tools { };
+
+  speak2mary = callPackage ../development/python-modules/speak2mary { };
 
   speaklater = callPackage ../development/python-modules/speaklater { };
 
@@ -18346,6 +18360,8 @@ self: super: with self; {
 
   trie = callPackage ../development/python-modules/trie { };
 
+  triggercmd = callPackage ../development/python-modules/triggercmd { };
+
   trimesh = callPackage ../development/python-modules/trimesh { };
 
   trino-python-client = callPackage ../development/python-modules/trino-python-client { };
@@ -18507,6 +18523,8 @@ self: super: with self; {
   };
 
   typed-settings = callPackage ../development/python-modules/typed-settings { };
+
+  typedmonarchmoney = callPackage ../development/python-modules/typedmonarchmoney { };
 
   typedunits = callPackage ../development/python-modules/typedunits { };
 
@@ -19247,6 +19265,8 @@ self: super: with self; {
   uvcclient = callPackage ../development/python-modules/uvcclient { };
 
   uvicorn = callPackage ../development/python-modules/uvicorn { };
+
+  uvicorn-worker = callPackage ../development/python-modules/uvicorn-worker { };
 
   uvloop = callPackage ../development/python-modules/uvloop { };
 

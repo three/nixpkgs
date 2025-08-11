@@ -7,16 +7,15 @@
   models-dev,
   nix-update-script,
   testers,
-  tree-sitter,
   writableTmpDirAsHomeHook,
 }:
 
 let
   opencode-node-modules-hash = {
-    "aarch64-darwin" = "sha256-AM+4jX1lroqBxslGK1by2q8MRsox4xrtlN95qPj0x2Y=";
-    "aarch64-linux" = "sha256-iQIqv6r6uo9zj8kiQDJuPyFdySNHIj+F4C286K6icv0=";
-    "x86_64-darwin" = "sha256-L6ae0C8AVzwMVfob38wdwNZoK02FMokzPGC2209r7NU=";
-    "x86_64-linux" = "sha256-oZa8O0iK5uSJjl6fOdnjqjIuG//ihrj4six3FUdfob8=";
+    "aarch64-darwin" = "sha256-LNp9sLhNUUC4ujLYPvfPx423GlXuIS0Z2H512H5oY8s=";
+    "aarch64-linux" = "sha256-xeKZwNV4ScF9p1vAcVR+vk4BiEpUH+AOGb7DQ2vLl1I=";
+    "x86_64-darwin" = "sha256-4NaHXeWf57dGVV+KP3mBSIUkbIApT19BuADT0E4X+rg=";
+    "x86_64-linux" = "sha256-7Hc3FJcg2dA8AvGQlS082fO1ehGBMPXWPF8N+sAHh2I=";
   };
   bun-target = {
     "aarch64-darwin" = "bun-darwin-arm64";
@@ -27,12 +26,12 @@ let
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "opencode";
-  version = "0.3.122";
+  version = "0.4.1";
   src = fetchFromGitHub {
     owner = "sst";
     repo = "opencode";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-JsyUXRfMQ40qQwtaW0Ebh/HlHqzb2D8AvsyJm5Yjm8E=";
+    hash = "sha256-LEFmfsqhCuGcRK7CEPZb6EZfjOHAyYpUHptXu04fjpQ=";
   };
 
   tui = buildGoModule {
@@ -41,7 +40,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     modRoot = "packages/tui";
 
-    vendorHash = "sha256-nBwYVaBau1iTnPY3d5F/5/ENyjMCikpQYNI5whEJwBk=";
+    vendorHash = "sha256-jGaTgKyAvBMt8Js5JrPFUayhVt3QhgyclFoNatoHac4=";
 
     subPackages = [ "cmd/opencode" ];
 
@@ -108,8 +107,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     outputHashMode = "recursive";
   };
 
-  buildInputs = [ tree-sitter ];
-
   nativeBuildInputs = [
     bun
     models-dev
@@ -117,7 +114,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   patches = [
     # Patch `packages/opencode/src/provider/models-macro.ts` to get contents of
-    # `api.json` from the file bundled with `bun build`.
+    # `_api.json` from the file bundled with `bun build`.
     ./local-models-dev.patch
   ];
 
@@ -129,19 +126,18 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postConfigure
   '';
 
-  env.MODELS_DEV_API_JSON = "${models-dev}/dist/api.json";
+  env.MODELS_DEV_API_JSON = "${models-dev}/dist/_api.json";
 
   buildPhase = ''
     runHook preBuild
 
     bun build \
+      --define OPENCODE_TUI_PATH="'${finalAttrs.tui}/bin/tui'" \
       --define OPENCODE_VERSION="'${finalAttrs.version}'" \
       --compile \
-      --minify \
       --target=${bun-target.${stdenvNoCC.hostPlatform.system}} \
       --outfile=opencode \
       ./packages/opencode/src/index.ts \
-      ${finalAttrs.tui}/bin/tui
 
     runHook postBuild
   '';
