@@ -1,0 +1,10 @@
+--- a/apps/web/next.config.mjs
++++ b/apps/web/next.config.mjs
+@@ -12,6 +12,7 @@ const withPWA = pwa({
+
+ /** @type {import('next').NextConfig} */
+ const nextConfig = withPWA({
++  cacheHandler: new URL('./cache-handler.mjs', import.meta.url).pathname,
+   output: "standalone",
+   webpack: (config) => {
+     config.module.rules.push({

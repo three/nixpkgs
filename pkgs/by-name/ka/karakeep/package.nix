@@ -30,6 +30,7 @@ stdenv.mkDerivation (finalAttrs: {
   patches = [
     ./patches/use-local-font.patch
     ./patches/dont-lock-pnpm-version.patch
+    ./patches/custom-cache-handler.patch
   ];
 
   postPatch = ''
@@ -76,6 +77,8 @@ stdenv.mkDerivation (finalAttrs: {
     find build -type f -exec ${removeReferencesTo}/bin/remove-references-to -t "${srcOnly nodejs}" {} \;
     popd
 
+    cp ${./cache-handler.mjs} apps/web/cache-handler.mjs
+
     export CI=true
 
     echo "Compiling apps/web..."
@@ -94,12 +97,6 @@ stdenv.mkDerivation (finalAttrs: {
     popd
 
     runHook postBuild
-  '';
-
-  preInstall = ''
-    # provide a environment variable to override the cache directory
-    # https://github.com/vercel/next.js/discussions/58864
-    patch -p1 -i ${./patches/cache-from-env-not-nix-store.patch}
   '';
 
   installPhase = ''
