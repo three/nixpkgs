@@ -20,19 +20,6 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "karakeep";
   version = "0.32.0";
 
-  # Only install the workspaces that are actually run by the NixOS module (web,
-  # workers, cli) plus db (for migrations). This excludes the mobile app,
-  # docs/landing sites, browser-extension, mcp and tooling, which would
-  # otherwise add hundreds of MB of unused dependencies to node_modules. The
-  # `...` suffix also pulls in each workspace's own dependency graph.
-  # Consumed by pnpmConfigHook (filters the install) and fetchPnpmDeps below.
-  pnpmWorkspaces = [
-    "@karakeep/web..."
-    "@karakeep/workers..."
-    "@karakeep/cli..."
-    "@karakeep/db..."
-  ];
-
   src = fetchFromGitHub {
     owner = "karakeep-app";
     repo = "karakeep";
@@ -78,11 +65,15 @@ stdenv.mkDerivation (finalAttrs: {
     };
 
     fetcherVersion = 3;
-    inherit (finalAttrs) pnpmWorkspaces;
     hash = "sha256-aT4JPx3iYw4kw8GHXKWMnelSVT0q2S3PK8DgSCQCyKQ=";
   };
   buildPhase = ''
     runHook preBuild
+
+    # Inject workspace packages (copy instead of symlink) so that the
+    # `pnpm deploy` in installPhase can assemble a self-contained, production
+    # only node_modules for the workers runtime and DB migrations.
+    pnpm config set inject-workspace-packages true
 
     # Based on matrix-appservice-discord
     pushd node_modules/better-sqlite3
@@ -122,9 +113,32 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p $out/share/doc/karakeep
     cp README.md LICENSE $out/share/doc/karakeep
 
-    # Copy necessary files into lib/karakeep while keeping the directory structure
-    LIB_TO_COPY="node_modules apps/web/.next/standalone apps/cli/dist apps/workers packages/db packages/shared packages/trpc"
     KARAKEEP_LIB_PATH="$out/lib/karakeep"
+
+    # Assemble a production-only node_modules with pnpm deploy instead of
+    # shipping the entire monorepo dev install (~2.2 GB). Filtering on the
+    # workers package captures everything the runtime actually needs: the
+    # workers' production dependency closure plus the injected @karakeep/*
+    # workspace packages and their production deps (drizzle-kit/tsx for the
+    # DB migrations run by the `migrate` helper). The web app ships as a
+    # self-contained Next.js standalone bundle and the cli as a single bundled
+    # file, so neither relies on this node_modules.
+    pnpmDeployDir="$NIX_BUILD_TOP/karakeep-deploy"
+    pnpm deploy --filter=@karakeep/workers --prod "$pnpmDeployDir"
+
+    # Reuse the better-sqlite3 native addon we compiled in buildPhase; the
+    # freshly deployed copy comes straight from the store without it.
+    cp -a node_modules/better-sqlite3/build/. \
+      "$pnpmDeployDir/node_modules/better-sqlite3/build/"
+
+    mkdir -p "$KARAKEEP_LIB_PATH/node_modules"
+    cp -a "$pnpmDeployDir"/node_modules/. "$KARAKEEP_LIB_PATH/node_modules/"
+    chmod -R u+w "$KARAKEEP_LIB_PATH/node_modules"
+
+    # Copy the build outputs into lib/karakeep while keeping the directory
+    # structure. packages/db is needed as the working directory for the
+    # `drizzle-kit migrate` invocation in the `migrate` helper.
+    LIB_TO_COPY="apps/web/.next/standalone apps/cli/dist apps/workers packages/db packages/shared packages/trpc"
     for DIR in $LIB_TO_COPY; do
       mkdir -p "$KARAKEEP_LIB_PATH/$DIR"
       cp -a $DIR/{.,}* "$KARAKEEP_LIB_PATH/$DIR"
@@ -156,9 +170,6 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   postFixup = ''
-    # Remove large dependencies that are not necessary during runtime
-    rm -rf $out/lib/karakeep/node_modules/{@next,next,@swc,react-native,monaco-editor,faker,@typescript-eslint,@microsoft,@typescript-eslint,pdfjs-dist}
-
     # Remove broken symlinks
     find $out -type l ! -exec test -e {} \; -delete
   '';
