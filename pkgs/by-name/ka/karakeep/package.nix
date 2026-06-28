@@ -20,6 +20,19 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "karakeep";
   version = "0.32.0";
 
+  # Only install the workspaces that are actually run by the NixOS module (web,
+  # workers, cli) plus db (for migrations). This excludes the mobile app,
+  # docs/landing sites, browser-extension, mcp and tooling, which would
+  # otherwise add hundreds of MB of unused dependencies to node_modules. The
+  # `...` suffix also pulls in each workspace's own dependency graph.
+  # Consumed by pnpmConfigHook (filters the install) and fetchPnpmDeps below.
+  pnpmWorkspaces = [
+    "@karakeep/web..."
+    "@karakeep/workers..."
+    "@karakeep/cli..."
+    "@karakeep/db..."
+  ];
+
   src = fetchFromGitHub {
     owner = "karakeep-app";
     repo = "karakeep";
@@ -65,19 +78,8 @@ stdenv.mkDerivation (finalAttrs: {
     };
 
     fetcherVersion = 3;
-
-    # Only fetch dependencies for the workspaces that are actually run by the
-    # NixOS module (web, workers, cli) plus db (for migrations). This excludes
-    # the mobile app, docs/landing sites, browser-extension, mcp and tooling,
-    # which would otherwise pull in hundreds of MB of unused dependencies.
-    pnpmWorkspaces = [
-      "@karakeep/web..."
-      "@karakeep/workers..."
-      "@karakeep/cli..."
-      "@karakeep/db..."
-    ];
-
-    hash = "";
+    inherit (finalAttrs) pnpmWorkspaces;
+    hash = "sha256-aT4JPx3iYw4kw8GHXKWMnelSVT0q2S3PK8DgSCQCyKQ=";
   };
   buildPhase = ''
     runHook preBuild
