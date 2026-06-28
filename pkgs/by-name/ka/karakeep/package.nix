@@ -70,11 +70,6 @@ stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
-    # Inject workspace packages (copy instead of symlink) so that the
-    # `pnpm deploy` in installPhase can assemble a self-contained, production
-    # only node_modules for the workers runtime and DB migrations.
-    pnpm config set inject-workspace-packages true
-
     # Based on matrix-appservice-discord
     pushd node_modules/better-sqlite3
     npm run build-release --offline "--nodedir=${srcOnly nodejs}"
@@ -115,39 +110,52 @@ stdenv.mkDerivation (finalAttrs: {
 
     KARAKEEP_LIB_PATH="$out/lib/karakeep"
 
-    # Assemble a production-only node_modules with pnpm deploy instead of
-    # shipping the entire monorepo dev install (~2.2 GB). Filtering on the
-    # workers package captures everything the runtime actually needs: the
-    # workers' production dependency closure plus the injected @karakeep/*
-    # workspace packages and their production deps (drizzle-kit/tsx for the
-    # DB migrations run by the `migrate` helper). The web app ships as a
-    # self-contained Next.js standalone bundle and the cli as a single bundled
-    # file, so neither relies on this node_modules.
-    # --offline/--frozen-lockfile keep deploy from re-resolving against the
-    # network (it otherwise does, since node-linker=hoisted leaves no virtual
-    # store to reuse); everything needed is already in the pnpm store.
-    pnpmDeployDir="$NIX_BUILD_TOP/karakeep-deploy"
-    pnpm deploy --offline --frozen-lockfile \
-      --filter=@karakeep/workers --prod "$pnpmDeployDir"
-
-    # Reuse the better-sqlite3 native addon we compiled in buildPhase; the
-    # freshly deployed copy comes straight from the store without it.
-    cp -a node_modules/better-sqlite3/build/. \
-      "$pnpmDeployDir/node_modules/better-sqlite3/build/"
-
-    mkdir -p "$KARAKEEP_LIB_PATH/node_modules"
-    cp -a "$pnpmDeployDir"/node_modules/. "$KARAKEEP_LIB_PATH/node_modules/"
-    chmod -R u+w "$KARAKEEP_LIB_PATH/node_modules"
-
-    # Copy the build outputs into lib/karakeep while keeping the directory
-    # structure. packages/db is needed as the working directory for the
-    # `drizzle-kit migrate` invocation in the `migrate` helper.
-    LIB_TO_COPY="apps/web/.next/standalone apps/cli/dist apps/workers packages/db packages/shared packages/trpc"
+    # Copy necessary files into lib/karakeep while keeping the directory structure
+    LIB_TO_COPY="node_modules apps/web/.next/standalone apps/cli/dist apps/workers packages/db packages/shared packages/trpc"
     for DIR in $LIB_TO_COPY; do
       mkdir -p "$KARAKEEP_LIB_PATH/$DIR"
       cp -a $DIR/{.,}* "$KARAKEEP_LIB_PATH/$DIR"
       chmod -R u+w "$KARAKEEP_LIB_PATH/$DIR"
     done
+
+    # Prune node_modules down to the production dependency closure that is
+    # actually used at runtime. Only the workers process and the DB migrations
+    # resolve modules from this tree (the web app ships as a self-contained
+    # Next.js standalone bundle and the cli as a single bundled file). Filtering
+    # on the workers package covers both, since it depends on @karakeep/db whose
+    # production deps include drizzle-kit/tsx for the `migrate` helper.
+    #
+    # pnpm deploy is unsuitable here: it re-resolves against the network and
+    # emits an isolated (.pnpm) layout, but the bundled workers require their
+    # transitive dependencies by bare specifier, which only resolve in the flat
+    # node_modules produced by node-linker=hoisted. So instead we compute the
+    # production closure with `pnpm list` and delete everything else.
+    keepList="$NIX_BUILD_TOP/karakeep-prod-deps.txt"
+    pnpm --filter=@karakeep/workers list --prod --depth Infinity --parseable \
+      | sed -n 's#.*/node_modules/##p' \
+      | sort -u > "$keepList"
+    # Bail out rather than wipe everything if the closure came back empty.
+    test -s "$keepList"
+
+    (
+      cd "$KARAKEEP_LIB_PATH/node_modules"
+      for entry in *; do
+        # Keep pnpm bookkeeping and the @karakeep/* workspace packages, which
+        # are symlinks into ../packages and are not reported by `pnpm list`.
+        case "$entry" in
+          .bin | .pnpm | .modules.yaml | @karakeep) continue ;;
+        esac
+        if [ "''${entry#@}" != "$entry" ]; then
+          # Scoped: prune individual packages, then drop the scope if emptied.
+          for pkg in "$entry"/*; do
+            grep -qxF "$pkg" "$keepList" || rm -rf "$pkg"
+          done
+          rmdir "$entry" 2>/dev/null || true
+        else
+          grep -qxF "$entry" "$keepList" || rm -rf "$entry"
+        fi
+      done
+    )
 
     # NextJS requires static files are copied in a specific way
     # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output#automatically-copying-traced-files
