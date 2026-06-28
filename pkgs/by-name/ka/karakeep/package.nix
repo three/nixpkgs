@@ -123,8 +123,12 @@ stdenv.mkDerivation (finalAttrs: {
     # DB migrations run by the `migrate` helper). The web app ships as a
     # self-contained Next.js standalone bundle and the cli as a single bundled
     # file, so neither relies on this node_modules.
+    # --offline/--frozen-lockfile keep deploy from re-resolving against the
+    # network (it otherwise does, since node-linker=hoisted leaves no virtual
+    # store to reuse); everything needed is already in the pnpm store.
     pnpmDeployDir="$NIX_BUILD_TOP/karakeep-deploy"
-    pnpm deploy --filter=@karakeep/workers --prod "$pnpmDeployDir"
+    pnpm deploy --offline --frozen-lockfile \
+      --filter=@karakeep/workers --prod "$pnpmDeployDir"
 
     # Reuse the better-sqlite3 native addon we compiled in buildPhase; the
     # freshly deployed copy comes straight from the store without it.
