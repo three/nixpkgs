@@ -65,7 +65,19 @@ stdenv.mkDerivation (finalAttrs: {
     };
 
     fetcherVersion = 3;
-    hash = "sha256-aT4JPx3iYw4kw8GHXKWMnelSVT0q2S3PK8DgSCQCyKQ=";
+
+    # Only fetch dependencies for the workspaces that are actually run by the
+    # NixOS module (web, workers, cli) plus db (for migrations). This excludes
+    # the mobile app, docs/landing sites, browser-extension, mcp and tooling,
+    # which would otherwise pull in hundreds of MB of unused dependencies.
+    pnpmWorkspaces = [
+      "@karakeep/web..."
+      "@karakeep/workers..."
+      "@karakeep/cli..."
+      "@karakeep/db..."
+    ];
+
+    hash = "";
   };
   buildPhase = ''
     runHook preBuild
