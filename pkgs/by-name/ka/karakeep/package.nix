@@ -125,6 +125,11 @@ stdenv.mkDerivation (finalAttrs: {
     # transitive dependencies by bare specifier, which only resolve in the flat
     # node_modules produced by node-linker=hoisted. So instead we compute the
     # production closure with `pnpm list` and delete everything else.
+    #
+    # `pnpm list --parseable` prints one absolute path per package; the name is
+    # whatever follows the final `/node_modules/`, e.g. `drizzle-orm` or the
+    # scoped `@aws-sdk/client-s3`. On disk those are exactly the `*` and `@*/*`
+    # entries, so the names line up and we can match them directly.
     keepList="$NIX_BUILD_TOP/karakeep-prod-deps.txt"
     pnpm --filter=@karakeep/workers list --prod --depth Infinity --parseable \
       | sed -n 's#.*/node_modules/##p' \
@@ -134,22 +139,21 @@ stdenv.mkDerivation (finalAttrs: {
 
     (
       cd "$KARAKEEP_LIB_PATH/node_modules"
-      for entry in *; do
-        # Keep pnpm bookkeeping and the @karakeep/* workspace packages, which
-        # are symlinks into ../packages and are not reported by `pnpm list`.
-        case "$entry" in
-          .bin | .pnpm | .modules.yaml | @karakeep) continue ;;
-        esac
-        if [ "''${entry#@}" != "$entry" ]; then
-          # Scoped: prune individual packages, then drop the scope if emptied.
-          for pkg in "$entry"/*; do
-            grep -qxF "$pkg" "$keepList" || rm -rf "$pkg"
-          done
-          rmdir "$entry" 2>/dev/null || true
-        else
-          grep -qxF "$entry" "$keepList" || rm -rf "$entry"
-        fi
-      done
+      shopt -s nullglob
+      # Delete every installed package not in the production closure. Unscoped
+      # packages are one level down, scoped packages two; either way the name
+      # matches the keep-list. Dotfiles (.bin/.pnpm/.modules.yaml) are skipped
+      # by the globs, and the @karakeep/* workspace links are always kept.
+      printf '%s\n' */ @*/*/ \
+        | sed 's#/$##' \
+        | awk -v keepfile="$keepList" '
+            BEGIN { while ((getline l < keepfile) > 0) keep[l] = 1 }
+            /^@[^/]+$/     { next }    # bare scope dir; handled via its children
+            /^@karakeep\// { next }    # first-party workspace package: always keep
+            !($0 in keep)              # emit packages outside the prod closure
+          ' \
+        | tr '\n' '\0' | xargs -0 -r rm -rf
+      rmdir @*/ 2>/dev/null || true    # drop scope directories left empty
     )
 
     # NextJS requires static files are copied in a specific way
