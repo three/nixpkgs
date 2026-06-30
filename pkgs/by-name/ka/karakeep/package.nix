@@ -11,6 +11,7 @@
   python3,
   srcOnly,
   removeReferencesTo,
+  util-linux,
   pnpm,
   fetchPnpmDeps,
   pnpmConfigHook,
@@ -25,6 +26,17 @@ let
     substituteInPlace pnpm-lock.yaml \
       --replace-fail '7nc6rwxl5vjub4hxnqupqavqpi' 'cc2a1c1903e66d7f6cea77c615cb9ae3b36a694502c1c588c3e34d28aa925aac' \
       --replace-fail 'kvggi4abfe6iel7wt6iiemonyq' '725863c0591d89ca053226c49fe7bc321f320391ec5f78b6c2e8e41ab1868805'
+  '';
+
+  # pnpm >= 10 intermittently fails to link nested esbuild copies during a
+  # parallel install (ERR_PNPM_ENOENT rename race, pnpm/pnpm#10179). pnpm sizes
+  # its import worker pool by CPU count, so pinning the install to a single CPU
+  # serialises the imports and avoids the race. The original affinity mask is
+  # saved in karakeepCpuMask and restored before the build phase so the
+  # application builds still use every core.
+  pinPnpmInstallToOneCpu = ''
+    karakeepCpuMask="$(taskset -cp $$ | sed 's/.*: //')"
+    taskset -cp "$(printf '%s' "$karakeepCpuMask" | sed 's/[,-].*//')" $$
   '';
 in
 stdenv.mkDerivation (finalAttrs: {
@@ -58,6 +70,7 @@ stdenv.mkDerivation (finalAttrs: {
     node-gyp
     pnpmConfigHook
     pnpm
+    util-linux
   ];
 
   buildInputs = [
@@ -72,12 +85,21 @@ stdenv.mkDerivation (finalAttrs: {
       patches
       ;
     inherit pnpm;
+    nativeBuildInputs = [ util-linux ];
     postPatch = fixupPnpmPatchHashes;
+    prePnpmInstall = pinPnpmInstallToOneCpu;
     fetcherVersion = 4;
     hash = "sha256-wg980DXP2m/5JLELKOV2XcqK61ElMyJPalkD6/MjtRw=";
   };
+
+  prePnpmInstall = pinPnpmInstallToOneCpu;
+
   buildPhase = ''
     runHook preBuild
+
+    # Restore the CPU affinity narrowed for the pnpm install (see
+    # pinPnpmInstallToOneCpu) so the application builds use every core.
+    taskset -cp "$karakeepCpuMask" $$ || true
 
     # Based on matrix-appservice-discord
     pushd node_modules/better-sqlite3
