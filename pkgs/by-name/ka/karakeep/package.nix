@@ -74,7 +74,7 @@ stdenv.mkDerivation (finalAttrs: {
     inherit pnpm;
     postPatch = fixupPnpmPatchHashes;
     fetcherVersion = 4;
-    hash = "";
+    hash = "sha256-wg980DXP2m/5JLELKOV2XcqK61ElMyJPalkD6/MjtRw=";
   };
   buildPhase = ''
     runHook preBuild
