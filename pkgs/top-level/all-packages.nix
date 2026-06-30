@@ -196,7 +196,6 @@ with pkgs;
   inherit (nix-update) nix-update-script;
 
   nixos-test-driver = pkgs.python3Packages.callPackage ../../nixos/lib/test-driver {
-    qemu_pkg = pkgs.qemu;
     imagemagick_light = pkgs.imagemagick_light.override { inherit (pkgs) libtiff; };
     tesseract4 = pkgs.tesseract4.override { enableLanguages = [ "eng" ]; };
     # We want `pkgs.systemd`, *not* `python3Packages.system`.
@@ -2813,6 +2812,7 @@ with pkgs;
     pnpm_8
     pnpm_9
     pnpm_10_29_2
+    pnpm_10_34_0
     pnpm_10
     pnpm_11
     ;
@@ -10512,10 +10512,6 @@ with pkgs;
   ### SCIENCE/PHYSICS
 
   ### SCIENCE/LOGIC
-
-  abella = callPackage ../applications/science/logic/abella {
-    ocamlPackages = ocaml-ng.ocamlPackages_4_12;
-  };
 
   inherit
     (callPackage ./rocq-packages.nix {

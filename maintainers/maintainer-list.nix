@@ -214,6 +214,11 @@
     github = "2hexed";
     githubId = 54501296;
   };
+  _30350n = {
+    name = "Max Schlecht";
+    github = "30350n";
+    githubId = 34186858;
+  };
   _360ied = {
     name = "Brian Zhu";
     email = "therealbarryplayer@gmail.com";
@@ -771,12 +776,6 @@
     github = "aflatter";
     githubId = 168;
     name = "Alexander Flatter";
-  };
-  afldcr = {
-    email = "alex@fldcr.com";
-    github = "afldcr";
-    githubId = 335271;
-    name = "James Alexander Feldman-Crough";
   };
   afontain = {
     email = "afontain@posteo.net";
@@ -4396,6 +4395,13 @@
     githubId = 48105979;
     name = "Caitlin Davitt";
   };
+  cakeforcat = {
+    email = "julia@cakeforcat.dev";
+    github = "cakeforcat";
+    githubId = 37912991;
+    name = "Julia Czarny";
+    matrix = "@cakeforcat:matrix.org";
+  };
   calavera = {
     email = "david.calavera@gmail.com";
     github = "calavera";
@@ -6555,12 +6561,6 @@
     githubId = 48378098;
     name = "Danila Danko";
   };
-  deepfire = {
-    email = "_deepfire@feelingofgreen.ru";
-    github = "deepfire";
-    githubId = 452652;
-    name = "Kosyrev Serge";
-  };
   DeeUnderscore = {
     email = "d.anzorge@gmail.com";
     github = "DeeUnderscore";
@@ -8658,12 +8658,6 @@
     email = "hi@f2k1.de";
     github = "f2k1de";
     githubId = 11199213;
-  };
-  f4814n = {
-    email = "me@f4814n.de";
-    github = "f4814";
-    githubId = 11909469;
-    name = "Fabian Geiselhart";
   };
   f4z3r = {
     email = "f4z3r-github@pm.me";
@@ -11266,12 +11260,6 @@
     name = "Daniel Höxtermann";
     github = "hxtmdev";
     githubId = 7771007;
-  };
-  hypersw = {
-    email = "baltic@hypersw.net";
-    github = "hypersw";
-    githubId = 2332070;
-    name = "Serge Baltic";
   };
   hythera = {
     name = "Hythera";
@@ -16462,6 +16450,12 @@
     githubId = 115777584;
     name = "Lutz Berger";
   };
+  luuumine = {
+    email = "nix@luuumine.com";
+    github = "luuumine";
+    githubId = 55056797;
+    name = "Romain Delhommais";
+  };
   lux = {
     email = "lux@lux.name";
     github = "luxzeitlos";
@@ -18129,12 +18123,6 @@
     github = "MaxwellDupre";
     githubId = 14096356;
     name = "Michael McLeod";
-  };
-  mikefaille = {
-    email = "michael@faille.io";
-    github = "mikefaille";
-    githubId = 978196;
-    name = "Michaël Faille";
   };
   mikehorn = {
     email = "mikehornproton@proton.me";
@@ -27426,6 +27414,11 @@
     githubId = 3889585;
     name = "Cheng Shao";
   };
+  terrorw0lf = {
+    name = "duckling";
+    github = "TERRORW0LF";
+    githubId = 61637480;
+  };
   terryg = {
     name = "Terry Garcia";
     email = "terry@terryg.org";
@@ -28409,17 +28402,17 @@
     githubId = 5623227;
     name = "Quentin Boyer";
   };
+  tree-sapii = {
+    email = "supersapiiiiii@gmail.com";
+    github = "tree-sapii";
+    githubId = 144389458;
+    name = "sapii";
+  };
   treemo = {
     email = "matthieu.chevrier@treemo.fr";
     github = "treemo";
     githubId = 207457;
     name = "Matthieu Chevrier";
-  };
-  trepetti = {
-    email = "trepetti@cs.columbia.edu";
-    github = "trepetti";
-    githubId = 25440339;
-    name = "Tom Repetti";
   };
   trespaul = {
     email = "paul@trespaul.com";
@@ -28959,6 +28952,12 @@
     github = "uxodb";
     githubId = 20535246;
   };
+  uzlkav = {
+    name = "Uzlkav";
+    github = "Uzlkav";
+    githubId = 177883133;
+    matrix = "@capybara_squash:unredacted.org";
+  };
   V = {
     name = "V";
     email = "v@anomalous.eu";
@@ -29084,12 +29083,6 @@
     github = "vbgl";
     githubId = 2612464;
     name = "Vincent Laporte";
-  };
-  vbmithr = {
-    email = "vb@luminar.eu.org";
-    github = "vbmithr";
-    githubId = 797581;
-    name = "Vincent Bernardoff";
   };
   vbrandl = {
     name = "Valentin Brandl";
@@ -31269,6 +31262,12 @@
     name = "Andrei Boar";
     github = "zuzuleinen";
     githubId = 944919;
+  };
+  zwang20 = {
+    name = "Michael Wang";
+    github = "zwang20";
+    githubId = 41721295;
+    matrix = "@michael_wzq:matrix.org";
   };
   zx2c4 = {
     email = "Jason@zx2c4.com";
