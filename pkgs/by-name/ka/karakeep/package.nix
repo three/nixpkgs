@@ -12,6 +12,7 @@
   srcOnly,
   removeReferencesTo,
   util-linux,
+  yq-go,
   pnpm,
   fetchPnpmDeps,
   pnpmConfigHook,
@@ -71,6 +72,7 @@ stdenv.mkDerivation (finalAttrs: {
     pnpmConfigHook
     pnpm
     util-linux
+    yq-go
   ];
 
   buildInputs = [
@@ -152,23 +154,22 @@ stdenv.mkDerivation (finalAttrs: {
     # Prune node_modules down to the production dependency closure that is
     # actually used at runtime. Only the workers process and the DB migrations
     # resolve modules from this tree (the web app ships as a self-contained
-    # Next.js standalone bundle and the cli as a single bundled file). Filtering
-    # on the workers package covers both, since it depends on @karakeep/db whose
+    # Next.js standalone bundle and the cli as a single bundled file). The
+    # workers closure covers both, since it depends on @karakeep/db whose
     # production deps include drizzle-kit/tsx for the `migrate` helper.
     #
     # pnpm deploy is unsuitable here: it re-resolves against the network and
     # emits an isolated (.pnpm) layout, but the bundled workers require their
     # transitive dependencies by bare specifier, which only resolve in the flat
-    # node_modules produced by node-linker=hoisted. So instead we compute the
-    # production closure with `pnpm list` and delete everything else.
-    #
-    # `pnpm list --parseable` prints one absolute path per package; the name is
-    # whatever follows the final `/node_modules/`, e.g. `drizzle-orm` or the
-    # scoped `@aws-sdk/client-s3`. On disk those are exactly the `*` and `@*/*`
-    # entries, so the names line up and we can match them directly.
+    # node_modules produced by node-linker=hoisted. And `pnpm list` cannot help
+    # either: on a hoisted install pnpm >= 10 reports the whole shared tree
+    # rather than a per-project closure. So we compute the closure straight from
+    # the lockfile (see prod-closure.cjs) and delete everything else. The names
+    # it prints (e.g. `drizzle-orm`, `@aws-sdk/client-s3`) are exactly the on
+    # disk `*` and `@*/*` entries, so they line up and we match them directly.
     keepList="$NIX_BUILD_TOP/karakeep-prod-deps.txt"
-    pnpm --filter=@karakeep/workers list --prod --depth Infinity --parseable \
-      | sed -n 's#.*/node_modules/##p' \
+    yq -o=json '.' pnpm-lock.yaml \
+      | node ${./prod-closure.cjs} apps/workers \
       | sort -u > "$keepList"
     # Bail out rather than wipe everything if the closure came back empty.
     test -s "$keepList"
