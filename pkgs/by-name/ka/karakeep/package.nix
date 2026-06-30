@@ -59,7 +59,7 @@ stdenv.mkDerivation (finalAttrs: {
       patches
       ;
     inherit pnpm;
-    fetcherVersion = 3;
+    fetcherVersion = 4;
     hash = "";
   };
   buildPhase = ''
