@@ -1,10 +1,38 @@
-Karakeep uses a specific version of pnpm and will fail to build with other pnpm
-versions. Instead of adding this pnpm version to nixpkgs, we override this
-requirement.
+Karakeep pins a specific pnpm version and declares its pnpm config (including
+patchedDependencies) in package.json. Newer pnpm (>= 10) refuses the pinned
+version and requires patchedDependencies to live in pnpm-workspace.yaml. We
+unpin the version and move that config across so the frozen-lockfile install
+keeps working without changing which patches are applied.
 
 ---
 --- a/package.json
 +++ b/package.json
-@@ -40 +40 @@
+@@ -38,13 +38,9 @@
+   },
 -  "packageManager": "pnpm@9.15.9",
 +  "packageManager": "pnpm",
+   "pnpm": {
+     "onlyBuiltDependencies": [
+       "better-sqlite3",
+       "re2"
+-    ],
+-    "patchedDependencies": {
+-      "xcode@3.0.1": "patches/xcode@3.0.1.patch",
+-      "playwright-extra@4.3.6": "patches/playwright-extra@4.3.6.patch"
+-    }
++    ]
+   }
+ }
+--- a/pnpm-workspace.yaml
++++ b/pnpm-workspace.yaml
+@@ -1,6 +1,10 @@
+ packages:
+   - "packages/*"
+   - "apps/*"
+   - "tooling/*"
+   - "tools/*"
+   - "docs"
++
++patchedDependencies:
++  xcode@3.0.1: patches/xcode@3.0.1.patch
++  playwright-extra@4.3.6: patches/playwright-extra@4.3.6.patch

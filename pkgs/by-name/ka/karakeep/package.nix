@@ -11,7 +11,7 @@
   python3,
   srcOnly,
   removeReferencesTo,
-  pnpm,
+  pnpm_10,
   fetchPnpmDeps,
   pnpmConfigHook,
   versionCheckHook,
@@ -44,7 +44,7 @@ stdenv.mkDerivation (finalAttrs: {
     nodejs
     node-gyp
     pnpmConfigHook
-    pnpm
+    pnpm_10
   ];
 
   buildInputs = [
@@ -58,8 +58,8 @@ stdenv.mkDerivation (finalAttrs: {
       src
       patches
       ;
-    inherit pnpm;
-    fetcherVersion = 4;
+    pnpm = pnpm_10;
+    fetcherVersion = 3;
     hash = "";
   };
   buildPhase = ''
