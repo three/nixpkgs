@@ -1,8 +1,9 @@
-Karakeep pins a specific pnpm version and declares its pnpm config (including
-patchedDependencies) in package.json. Newer pnpm (>= 10) refuses the pinned
-version and requires patchedDependencies to live in pnpm-workspace.yaml. We
-unpin the version and move that config across so the frozen-lockfile install
-keeps working without changing which patches are applied.
+Karakeep pins a specific pnpm version and declares its pnpm config in
+package.json (patchedDependencies) and .npmrc (node-linker). Newer pnpm
+(>= 10) refuses the pinned version and only reads these settings from
+pnpm-workspace.yaml. We unpin the version and move the config across so the
+frozen-lockfile install keeps working, with the same hoisted node_modules
+layout and the same patches applied.
 
 ---
 --- a/package.json
@@ -25,13 +26,15 @@ keeps working without changing which patches are applied.
  }
 --- a/pnpm-workspace.yaml
 +++ b/pnpm-workspace.yaml
-@@ -1,6 +1,10 @@
+@@ -1,6 +1,12 @@
  packages:
    - "packages/*"
    - "apps/*"
    - "tooling/*"
    - "tools/*"
    - "docs"
++
++nodeLinker: hoisted
 +
 +patchedDependencies:
 +  xcode@3.0.1: patches/xcode@3.0.1.patch
