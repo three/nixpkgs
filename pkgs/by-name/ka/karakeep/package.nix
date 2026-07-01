@@ -86,7 +86,7 @@ stdenv.mkDerivation (finalAttrs: {
       pnpm config set network-concurrency 4
     '';
     fetcherVersion = 4;
-    hash = "";
+    hash = "sha256-RDmBtZe+HMMmUo+VJqEHIRTKaJcCE6nfOXoF/JALZ6k=";
   };
 
   prePnpmInstall = pinPnpmInstallToOneCpu;
