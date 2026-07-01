@@ -77,7 +77,14 @@ stdenv.mkDerivation (finalAttrs: {
       ;
     inherit pnpm;
     nativeBuildInputs = [ util-linux ];
-    prePnpmInstall = pinPnpmInstallToOneCpu;
+    prePnpmInstall = ''
+      ${pinPnpmInstallToOneCpu}
+      # The single-CPU install decompresses downloads slowly, so give the large
+      # tarballs (e.g. @swc/core) more time and fetch fewer at once to avoid
+      # pnpm's default 60s fetch timeout aborting them.
+      pnpm config set fetch-timeout 600000
+      pnpm config set network-concurrency 4
+    '';
     fetcherVersion = 4;
     hash = "";
   };
