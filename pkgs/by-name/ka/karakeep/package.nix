@@ -39,8 +39,8 @@ stdenv.mkDerivation (finalAttrs: {
     repo = "karakeep";
     # A main-branch commit past the cli/v0.32.0 tag, taken for its pnpm 11
     # upgrade (patchedDependencies and nodeLinker moved to pnpm-workspace.yaml).
-    rev = "a787ee4704b5071661d8b6aed1444171bff8010b";
-    hash = "sha256-xjyrvDuSmbrQMCklIzV3vyupyL4WRo3z+llAj5wAs3k=";
+    rev = "4af8bb2fd15beff338a791b7a8e0bbf9b72814d6";
+    hash = "sha256-H3SRXax+upFf9bHEg2Og9xuDlSnsnlokoWw1Bc89ZUQ=";
   };
 
   patches = [
@@ -86,7 +86,7 @@ stdenv.mkDerivation (finalAttrs: {
       pnpm config set network-concurrency 4
     '';
     fetcherVersion = 4;
-    hash = "sha256-RDmBtZe+HMMmUo+VJqEHIRTKaJcCE6nfOXoF/JALZ6k=";
+    hash = "";
   };
 
   prePnpmInstall = pinPnpmInstallToOneCpu;
