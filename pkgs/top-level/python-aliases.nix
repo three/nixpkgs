@@ -77,6 +77,7 @@ mapAliases {
   # keep-sorted start case=no numeric=yes
   abjad = throw "'abjad' was removed due to lack of maintenance"; # Added 2026-03-24
   abodepy = throw "'abodepy' has been renamed to/replaced by 'jaraco-abode'"; # Converted to throw 2025-10-29
+  advocate = throw "'advocate' has been removed due to being archived upstream and unused"; # added 2026-07-01
   aioinflux = throw "'aioinflux' was removed because it is abandonned upstream. For InfluxDB v2+ support, please use the official Python client library"; # Added 2026-01-15
   aiosenz = throw "aiosenz was removed because Home Assistant switched to pysenz"; # added 2025-12-29
   aioshutil = throw "'aioshutil' was removed because uiprotect no longer depends on it"; # added 2026-02-16
@@ -368,6 +369,8 @@ mapAliases {
   monarchmoney = throw "'monarchmoney' has been renamed to/replaced by 'monarchmoneycommunity'"; # Added 2026-03-05
   monkeytype = throw "'monkeytype' has been removed as it was unmaintained upstream"; # Added 2026-04-19
   moretools = "'moretools' has been removed because it is unmaintained"; # Added 2026-01-19
+  mpd2 = warnAlias "'mpd2' has been renamed to 'python-mpd2'"; # Added 2026-06-14
+  mpire = throw "'mpire' has been removed because it is unused in Nixpkgs"; # Added 2026-06-22
   msldap-bad = throw "'msldap-bad' has been renamed to/replaced by 'badldap'"; # added 2025-11-06
   mullvad-closest = throw "'mullvad-closest' has been removed as it was unmaintained. Consider using 'mullvad-compass' instead."; # Added 2026-01-13
   multi_key_dict = throw "'multi_key_dict' has been renamed to/replaced by 'multi-key-dict'"; # Converted to throw 2025-10-29
@@ -592,8 +595,10 @@ mapAliases {
   sphinx-hoverxref = throw "'sphinx-hoverxref' has been deprecated upstream. It's functionality was merged into the readthedocs.org admin panel."; # Added 2026-01-18"
   sphinx-jquery = throw "'sphinx-jquery' has been renamed to/replaced by 'sphinxcontrib-jquery'"; # Converted to throw 2025-10-29
   sphinx-version-warning = throw "'sphinx-version-warning' has been abandoned upstream in 2019"; # Added 2026-01-18
+  sphinx-versions = throw "'sphinx-versions' has been removed because it is unused in Nixpkgs"; # Added 2026-06-22
   sphinx_rtd_theme = throw "'sphinx_rtd_theme' has been renamed to/replaced by 'sphinx-rtd-theme'"; # Converted to throw 2025-10-29
   sphinxcontrib-autoapi = throw "'sphinxcontrib-autoapi' has been renamed to/replaced by 'sphinx-autoapi'"; # Converted to throw 2025-10-29
+  sphinxcontrib-images = throw "'sphinxcontrib-images' has been removed because it is unused in Nixpkgs"; # Added 2026-06-22
   sphinxcontrib-newsfeed = throw "'sphinxcontrib-newsfeed has been removed due to abandonment upstream"; # Added 2026-03-24
   sphinxcontrib_httpdomain = throw "'sphinxcontrib_httpdomain' has been renamed to/replaced by 'sphinxcontrib-httpdomain'"; # Converted to throw 2025-10-29
   sphinxcontrib_newsfeed = throw "'sphinxcontrib_newsfeed' has been renamed to/replaced by 'sphinxcontrib-newsfeed'"; # Converted to throw 2025-10-29
@@ -627,6 +632,7 @@ mapAliases {
   threadpool = throw "'threadpool' has been removed, since it is obsolete"; # Added 2026-01-09
   tikzplotlib = throw "tikzplotlib was removed because it is incompatible with recent versions of matplotlib and webcolors"; # added 2025-11-11
   torchtnt-nightly = throw "'torchtnt-nightly' was only needed as a test dependency for 'torcheval', but these tests are no longer run"; # added 2025-11-12
+  torchtrune = throw "'torchtune' weas removed because it is unmaintained"; # added 2026-07-02
   torrent_parser = throw "'torrent_parser' has been renamed to/replaced by 'torrent-parser'"; # Converted to throw 2025-10-29
   tracing = throw "'tracing' has been removed because its source code has been removed"; # Added 2025-12-17
   treeo = throw "treeo has been removed because it has been marked as broken since 2023."; # Added 2025-10-11

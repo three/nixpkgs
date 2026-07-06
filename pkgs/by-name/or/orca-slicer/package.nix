@@ -1,5 +1,5 @@
 {
-  stdenv,
+  clangStdenv,
   lib,
   binutils,
   fetchFromGitHub,
@@ -39,7 +39,7 @@
   wxwidgets_3_3,
   libx11,
   libnoise,
-  withSystemd ? stdenv.hostPlatform.isLinux,
+  withSystemd ? clangStdenv.hostPlatform.isLinux,
   withNvidiaGLWorkaround ? false,
 }:
 let
@@ -47,7 +47,7 @@ let
     (wxwidgets_3_3.override {
       withPrivateFonts = true;
       withWebKit = true;
-      withEGL = false;
+      withEGL = true;
     }).overrideAttrs
       (old: {
         buildInputs = old.buildInputs ++ [ libsecret ];
@@ -58,16 +58,22 @@ let
         ];
       });
 in
-stdenv.mkDerivation (finalAttrs: {
+# Build with clang even on Linux, because GCC uses absolutely obscene amounts of memory
+# on this particular code base (OOM with 32GB memory and --cores 16 on GCC, succeeds
+# with --cores 32 on clang).
+clangStdenv.mkDerivation (finalAttrs: {
   pname = "orca-slicer";
-  version = "2.4.0";
+  version = "2.4.1";
 
   src = fetchFromGitHub {
     owner = "OrcaSlicer";
     repo = "OrcaSlicer";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ogo+Xuz7yBz9POVKfLofnxwIQavkApPzTIdp/Phu/UU=";
+    hash = "sha256-NJvJAQfkacMjMIirAoOND/G1GaXeMcNleiGQKoe+654=";
   };
+
+  __structuredAttrs = true;
+  strictDeps = true;
 
   nativeBuildInputs = [
     cmake
@@ -149,32 +155,24 @@ stdenv.mkDerivation (finalAttrs: {
   env = {
     NLOPT = nlopt;
 
-    NIX_CFLAGS_COMPILE = toString (
-      [
-        "-Wno-ignored-attributes"
-        "-I${opencv.out}/include/opencv4"
-        "-Wno-error=incompatible-pointer-types"
-        "-Wno-template-id-cdtor"
-        "-Wno-uninitialized"
-        "-Wno-unused-result"
-        "-Wno-deprecated-declarations"
-        "-Wno-use-after-free"
-        "-Wno-format-overflow"
-        "-Wno-stringop-overflow"
-        "-DBOOST_ALLOW_DEPRECATED_HEADERS"
-        "-DBOOST_MATH_DISABLE_STD_FPCLASSIFY"
-        "-DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS"
-        "-DBOOST_MATH_DISABLE_FLOAT128"
-        "-DBOOST_MATH_NO_QUAD_SUPPORT"
-        "-DBOOST_MATH_MAX_FLOAT128_DIGITS=0"
-        "-DBOOST_CSTDFLOAT_NO_LIBQUADMATH_SUPPORT"
-        "-DBOOST_MATH_DISABLE_FLOAT128_BUILTIN_FPCLASSIFY"
-      ]
-      # Making it compatible with GCC 14+, see https://github.com/SoftFever/OrcaSlicer/pull/7710
-      ++ lib.optionals (stdenv.cc.isGNU && lib.versionAtLeast stdenv.cc.version "14") [
-        "-Wno-error=template-id-cdtor"
-      ]
-    );
+    NIX_CFLAGS_COMPILE = toString [
+      "-Wno-ignored-attributes"
+      "-I${opencv.out}/include/opencv4"
+      "-Wno-error=incompatible-pointer-types"
+      "-Wno-error=format-security"
+      "-Wno-uninitialized"
+      "-Wno-unused-result"
+      "-Wno-deprecated-declarations"
+      "-Wno-format-overflow"
+      "-DBOOST_ALLOW_DEPRECATED_HEADERS"
+      "-DBOOST_MATH_DISABLE_STD_FPCLASSIFY"
+      "-DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS"
+      "-DBOOST_MATH_DISABLE_FLOAT128"
+      "-DBOOST_MATH_NO_QUAD_SUPPORT"
+      "-DBOOST_MATH_MAX_FLOAT128_DIGITS=0"
+      "-DBOOST_CSTDFLOAT_NO_LIBQUADMATH_SUPPORT"
+      "-DBOOST_MATH_DISABLE_FLOAT128_BUILTIN_FPCLASSIFY"
+    ];
 
     NIX_LDFLAGS = toString [
       (lib.optionalString withSystemd "-ludev")

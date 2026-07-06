@@ -1551,6 +1551,18 @@ assertNoAdditions {
     ];
   };
 
+  fyler-nvim = super.fyler-nvim.overrideAttrs {
+    nvimSkipModules = [
+      # Requires setup
+      "fyler.extensions.trash"
+      "fyler.finder"
+      "fyler.integrations.icon"
+      "fyler.integrations.window_picker"
+      "fyler.schemes.file"
+      "fyler.state"
+    ];
+  };
+
   fzf-checkout-vim = super.fzf-checkout-vim.overrideAttrs {
     # The plugin has a makefile which tries to run tests in a docker container.
     # This prevents it.
@@ -3012,11 +3024,24 @@ assertNoAdditions {
     ];
   };
 
+  neovim-project = super.neovim-project.overrideAttrs {
+    dependencies = with self; [
+      plenary-nvim
+      neovim-session-manager
+    ];
+  };
+
   neovim-sensible = super.neovim-sensible.overrideAttrs (old: {
     meta = old.meta // {
       license = lib.licenses.mit;
     };
   });
+
+  neovim-session-manager = super.neovim-session-manager.overrideAttrs {
+    dependencies = with self; [
+      plenary-nvim
+    ];
+  };
 
   neovim-tips = super.neovim-tips.overrideAttrs {
     dependencies = [
@@ -3434,7 +3459,7 @@ assertNoAdditions {
     # Optional toggleterm integration
     checkInputs = [ self.toggleterm-nvim ];
     dependencies = with self; [
-      nvim-treesitter-legacy
+      nvim-treesitter
       nvim-treesitter-parsers.c_sharp
       nvim-treesitter-parsers.go
       nvim-treesitter-parsers.haskell

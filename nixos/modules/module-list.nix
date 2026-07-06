@@ -193,6 +193,7 @@
   ./programs/chrysalis.nix
   ./programs/clash-verge.nix
   ./programs/cnping.nix
+  ./programs/comma.nix
   ./programs/command-not-found/command-not-found.nix
   ./programs/coolercontrol.nix
   ./programs/corefreq.nix
@@ -1428,6 +1429,7 @@
   ./services/networking/tailscale-derper.nix
   ./services/networking/tailscale-serve.nix
   ./services/networking/tailscale.nix
+  ./services/networking/tap.nix
   ./services/networking/tayga.nix
   ./services/networking/tcpcrypt.nix
   ./services/networking/teamspeak3.nix
@@ -1491,6 +1493,7 @@
   ./services/scheduling/atd.nix
   ./services/scheduling/cron.nix
   ./services/scheduling/fcron.nix
+  ./services/scheduling/gocron.nix
   ./services/scheduling/prefect.nix
   ./services/scheduling/scx-loader.nix
   ./services/scheduling/scx.nix
@@ -1707,6 +1710,7 @@
   ./services/web-apps/kavita.nix
   ./services/web-apps/keycloak.nix
   ./services/web-apps/kimai.nix
+  ./services/web-apps/koito.nix
   ./services/web-apps/komga.nix
   ./services/web-apps/lanraragi.nix
   ./services/web-apps/lasuite-docs.nix
@@ -1846,7 +1850,6 @@
   ./services/web-servers/minio.nix
   ./services/web-servers/molly-brown.nix
   ./services/web-servers/nginx/default.nix
-  ./services/web-servers/nginx/gitweb.nix
   ./services/web-servers/nginx/tailscale-auth.nix
   ./services/web-servers/phpfpm/default.nix
   ./services/web-servers/pomerium.nix
