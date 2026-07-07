@@ -125,9 +125,13 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   preInstall = ''
-    # provide a environment variable to override the cache directory
+    # Provide an environment variable to override the cache directory, which
+    # otherwise defaults to a location inside the read-only Nix store.
     # https://github.com/vercel/next.js/discussions/58864
-    patch -p1 -i ${./patches/cache-from-env-not-nix-store.patch}
+    substituteInPlace apps/web/.next/standalone/node_modules/next/dist/server/image-optimizer.js \
+      --replace-fail \
+        "this.cacheDir = (0, _path.join)(/* turbopackIgnore: true */ distDir, 'cache', 'images');" \
+        "this.cacheDir = (0, _path.join)(process.env.NEXT_CACHE_DIR || (0, _path.join)(/* turbopackIgnore: true */ distDir, 'cache'), 'images');"
   '';
 
   installPhase = ''
